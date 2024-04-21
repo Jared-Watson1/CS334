@@ -4,15 +4,12 @@ import seaborn as sns
 
 
 def load_data(file_path):
-    """
-    Load the dataset from a specified file path.
-    """
     return pd.read_csv(file_path)
 
 
 def summarize_missing_values(data):
     """
-    Generate a summary of missing values in the dataset.
+    summary of missing values in the dataset.
     """
     missing_values = data.isnull().sum()
     missing_percentage = (missing_values / len(data)) * 100
@@ -41,14 +38,14 @@ def visualize_data(data):
     plt.xlabel("Loan Amount")
     plt.ylabel("Frequency")
 
-    # Visualization of Annual Income Distribution (limited to certain range for better visualization)
+    # Visualization of Annual Income Distribution
     plt.figure(figsize=(10, 5))
     sns.histplot(data[data["annual_inc"] < 200000]["annual_inc"], kde=True)
     plt.title("Distribution of Annual Income")
     plt.xlabel("Annual Income")
     plt.ylabel("Frequency")
 
-    # Visualization of Loan Status (Count Plot)
+    # Visualization of Loan Status
     plt.figure(figsize=(10, 5))
     sns.countplot(y="loan_status", data=data)
     plt.title("Loan Status Counts")
@@ -59,9 +56,21 @@ def visualize_data(data):
 
 
 if __name__ == "__main__":
-    # Change this to your CSV file path
     file_path = "loan.csv"
     data = load_data(file_path)
-    summarize_missing_values(data)
-    describe_data(data)
-    visualize_data(data)
+    # summarize_missing_values(data)
+    # describe_data(data)
+    # visualize_data(data)
+
+    # # Path to the input CSV file
+    # input_file = "loan.csv"
+    # # Path to the output CSV file
+    # output_file = "loan_sample.csv"
+
+    # # Read the first 100 rows of the CSV file
+    # df = pd.read_csv(input_file, nrows=100)
+
+    # # Save the first 100 rows to a new CSV file
+    # df.to_csv(output_file, index=False)
+
+    # print(f"The first 100 rows have been saved to {output_file}.")

@@ -4,9 +4,6 @@ import time
 
 
 def load_data(file_path):
-    """
-    Load the preprocessed dataset
-    """
     return pd.read_csv(file_path)
 
 
@@ -29,11 +26,9 @@ def split_data(data, train_size=0.6, test_size=0.2, random_state=42):
 
 if __name__ == "__main__":
     start_time = time.time()
-    # Load the preprocessed data
     file_path = "preprocessed_loan_data.csv"
     data = load_data(file_path)
 
-    # Split the data
     train_data, validation_data, test_data = split_data(data)
 
     train_data.to_csv("train.csv", index=False)
