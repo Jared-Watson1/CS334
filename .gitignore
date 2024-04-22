@@ -3,3 +3,5 @@ modified_preprocessed_data2.csv
 loan_sample.csv
 LCDataDictionary.xlsx
 data
+optimized_knn_model.pkl
+optimized_scaler.pkl
