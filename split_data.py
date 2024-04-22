@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 # Load the full dataset
-data = pd.read_csv("modified_preprocessed_data2.csv")
+data = pd.read_csv("data/modified_preprocessed_data2.csv")
 
 # Split the dataset into training (75%) and testing (25%) sets
 train_set, test_set = train_test_split(data, test_size=0.25, random_state=42)
