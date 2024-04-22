@@ -6,7 +6,7 @@ from sklearn.pipeline import Pipeline
 
 
 def preprocess_data(file_path):
-    # Load the dataset
+    # Load the dataset with low_memory=False to handle DtypeWarnings
     data = pd.read_csv(file_path, low_memory=False)
 
     # Select relevant columns
@@ -27,13 +27,16 @@ def preprocess_data(file_path):
     # Define preprocessing for numerical attributes
     numerical_cols = ["loan_amnt", "int_rate", "installment", "annual_inc", "dti"]
     num_transformer = Pipeline(
-        [("imputer", SimpleImputer(strategy="median")), ("scaler", MinMaxScaler())]
+        steps=[
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", MinMaxScaler()),
+        ]
     )
 
     # Define preprocessing for categorical attributes
     categorical_cols = ["term", "grade", "purpose", "addr_state", "loan_status"]
     cat_transformer = Pipeline(
-        [
+        steps=[
             ("imputer", SimpleImputer(strategy="constant", fill_value="missing")),
             ("encoder", OneHotEncoder(handle_unknown="ignore")),
         ]
@@ -50,34 +53,24 @@ def preprocess_data(file_path):
     # Apply transformations
     data_preprocessed = preprocessor.fit_transform(data)
 
-    # Generate column names for the transformed DataFrame
-    categorical_features = (
+    # Extract feature names for the categorical features
+    # Must use the fitted ColumnTransformer's named step for 'cat' and the 'encoder'
+    cat_features = (
         preprocessor.named_transformers_["cat"]
         .named_steps["encoder"]
-        .get_feature_names_out(categorical_cols)
+        .get_feature_names_out(input_features=categorical_cols)
     )
-    columns_transformed = numerical_cols + list(categorical_features)
+    all_features = numerical_cols + list(cat_features)
 
-    # Check the shape of the data_preprocessed
-    print("Shape of data_preprocessed:", data_preprocessed.shape)
-
-    # Convert the output back to a DataFrame
-    if data_preprocessed.ndim > 1 and data_preprocessed.shape[1] == len(
-        columns_transformed
-    ):
-        data_preprocessed_df = pd.DataFrame(
-            data_preprocessed, columns=columns_transformed
-        )
-    else:
-        raise ValueError(
-            "The shape of the transformed data does not match the number of expected columns."
-        )
+    # Convert the processed data back to a DataFrame
+    data_preprocessed_df = pd.DataFrame(
+        data_preprocessed.toarray(), columns=all_features
+    )
 
     # Save the processed data to a new CSV file
     data_preprocessed_df.to_csv("preprocessed_data2.csv", index=False)
-    print("Data preprocessing complete and saved to 'preprocessed_data2.csv'.")
+    print("Data preprocessing complete and saved to 'preprocessed_data.csv'.")
 
 
-# Example usage
 file_path = "loan.csv"
 preprocess_data(file_path)

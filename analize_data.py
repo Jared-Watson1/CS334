@@ -57,15 +57,15 @@ def visualize_data(data):
 
 if __name__ == "__main__":
     file_path = "loan.csv"
-    data = load_data(file_path)
+    # data = load_data(file_path)
     # summarize_missing_values(data)
     # describe_data(data)
     # visualize_data(data)
 
     # # Path to the input CSV file
-    # input_file = "loan.csv"
+    # input_file = "modified_preprocessed_data2.csv"
     # # Path to the output CSV file
-    # output_file = "loan_sample.csv"
+    # output_file = "preprocessed_data_sample.csv"
 
     # # Read the first 100 rows of the CSV file
     # df = pd.read_csv(input_file, nrows=100)
