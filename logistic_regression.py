@@ -1,7 +1,7 @@
 import pandas as pd
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, hamming_loss
-from sklearn.model_selection import train_test_split
+from sklearn.multiclass import OneVsRestClassifier
 import joblib
 
 
@@ -19,9 +19,9 @@ def prepare_data(df):
     return X, y
 
 
-def train_decision_tree(X_train, y_train):
-    # Initialize the Decision Tree Classifier
-    model = DecisionTreeClassifier(random_state=42)
+def train_logistic_regression(X_train, y_train):
+    # Initialize the Logistic Regression inside OneVsRestClassifier for multi-label classification
+    model = OneVsRestClassifier(LogisticRegression(random_state=42, max_iter=1000))
     model.fit(X_train, y_train)
     return model
 
@@ -43,14 +43,14 @@ def main():
     X_test, y_test = prepare_data(test_data)
 
     # Train the model
-    model = train_decision_tree(X_train, y_train)
+    model = train_logistic_regression(X_train, y_train)
 
     # Evaluate the model
     accuracy, h_loss = evaluate_model(model, X_test, y_test)
     print(f"Accuracy: {accuracy}")
     print(f"Hamming Loss: {h_loss}")
 
-    # joblib.dump(model, "multi_label_decision_tree_model.pkl")
+    # joblib.dump(model, "logistic_regression_model.pkl")
 
 
 if __name__ == "__main__":
