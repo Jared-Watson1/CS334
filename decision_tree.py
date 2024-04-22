@@ -1,37 +1,58 @@
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, hamming_loss
 from sklearn.model_selection import train_test_split
+import joblib
 
-# Load the datasets
-train_data = pd.read_csv("train.csv")
-validation_data = pd.read_csv("validation.csv")
-test_data = pd.read_csv("test.csv")
 
-# Prepare the datasets
-X_train = train_data.drop("loan_status", axis=1)
-y_train = train_data["loan_status"]
-X_validation = validation_data.drop("loan_status", axis=1)
-y_validation = validation_data["loan_status"]
-X_test = test_data.drop("loan_status", axis=1)
-y_test = test_data["loan_status"]
+def load_data():
+    train_data = pd.read_csv("data/training_set.csv")
+    test_data = pd.read_csv("data/testing_set.csv")
+    return train_data, test_data
 
-# Create a Decision Tree Classifier
-decision_tree = DecisionTreeClassifier(random_state=0)
 
-# Train the model
-decision_tree.fit(X_train, y_train)
+def prepare_data(df):
+    # Filter out the loan status columns as the targets
+    target_columns = [col for col in df.columns if col.startswith("loan_status_")]
+    y = df[target_columns]
+    X = df.drop(target_columns, axis=1)
+    return X, y
 
-# Predict on validation set
-y_pred_validation = decision_tree.predict(X_validation)
 
-# Evaluate the model
-accuracy = accuracy_score(y_validation, y_pred_validation)
-conf_matrix = confusion_matrix(y_validation, y_pred_validation)
+def train_decision_tree(X_train, y_train):
+    # Initialize the Decision Tree Classifier
+    model = DecisionTreeClassifier(random_state=42)
+    model.fit(X_train, y_train)
+    return model
 
-# Output the evaluation results
-print("Accuracy on validation set: {:.2f}%".format(accuracy * 100))
-print("Confusion Matrix:")
-print(conf_matrix)
 
-# You can also add code here to evaluate the fairness metric (True Positive Rate across different groups)
+def evaluate_model(model, X_test, y_test):
+    # Predicting the Test set results
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    h_loss = hamming_loss(y_test, y_pred)
+    return acc, h_loss
+
+
+def main():
+    # Load the data
+    train_data, test_data = load_data()
+
+    # Prepare the data
+    X_train, y_train = prepare_data(train_data)
+    X_test, y_test = prepare_data(test_data)
+
+    # Train the model
+    model = train_decision_tree(X_train, y_train)
+
+    # Evaluate the model
+    accuracy, h_loss = evaluate_model(model, X_test, y_test)
+    print(f"Accuracy: {accuracy}")
+    print(f"Hamming Loss: {h_loss}")
+
+    # Optionally save the model
+    joblib.dump(model, "multi_label_decision_tree_model.pkl")
+
+
+if __name__ == "__main__":
+    main()
