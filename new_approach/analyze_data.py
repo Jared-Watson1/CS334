@@ -1,9 +1,9 @@
 import pandas as pd
 
-df = pd.read_csv("data/processed_loan_data.csv")
+df = pd.read_csv("data/testing.csv")
 
 sampled_df = df.sample(n=1000)
-out_file = "data/processed_loan_data_sample.csv"
+out_file = "data/testing_sample.csv"
 # Save the sampled data to a new CSV file
 sampled_df.to_csv(out_file, index=False)
 
