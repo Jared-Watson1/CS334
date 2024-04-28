@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
+import json
 
 
 def load_data(filepath):
@@ -13,17 +14,17 @@ def load_data(filepath):
 
 
 def plot_correlation_matrix(data):
-    """Plot the correlation matrix for a subset of the dataset to make it readable."""
+    """Plot the correlation matrix for numerical features only."""
+    numerical_features = data.select_dtypes(include=["float64", "int64"])
     plt.figure(figsize=(15, 10))
-    # Select a subset of columns if too many, or use a threshold for correlation values
-    corr = data.corr().abs()
+    corr = numerical_features.corr().abs()
     sns.heatmap(corr, annot=False, cmap="coolwarm")
-    plt.title("Feature Correlation Matrix")
+    plt.title("Numerical Feature Correlation Matrix")
     plt.show()
 
 
 def feature_importance(data, target_column):
-    """Compute feature importance using a Random Forest classifier, handling missing values."""
+    """Compute feature importance using a Random Forest classifier"""
     X = data.drop(target_column, axis=1)
     y = data[target_column]
     # Handle missing values
@@ -33,11 +34,11 @@ def feature_importance(data, target_column):
     model.fit(X_imputed, y)
     importance = pd.Series(model.feature_importances_, index=X.columns)
     importance = importance.sort_values(ascending=False)
-    return importance
+    return importance.to_dict()
 
 
 def select_features(data, target_column):
-    """Select features using univariate statistical tests, handling missing values."""
+    """Select features using univariate statistical tests"""
     X = data.drop(target_column, axis=1)
     y = data[target_column]
     imputer = SimpleImputer(strategy="mean")
@@ -46,7 +47,14 @@ def select_features(data, target_column):
     selector.fit(X_imputed, y)
     scores = pd.Series(selector.scores_, index=X.columns)
     scores = scores.sort_values(ascending=False)
-    return scores
+    return scores.to_dict()
+
+
+def write_feature_stats_to_json(filepath, importance, scores):
+    """Write feature importance and scores to a JSON file."""
+    feature_stats = {"feature_importance": importance, "feature_scores": scores}
+    with open(filepath, "w") as json_file:
+        json.dump(feature_stats, json_file, indent=4)
 
 
 def main():
@@ -65,8 +73,12 @@ def main():
     )
     scores = select_features(data, "loan_status")
     print(f"Feature importance complete: {time.time() - start_time}")
-    print("Feature Importance:\n", importance)
-    print("Feature Scores from Univariate Selection:\n", scores)
+    feature_stats_path = "data/feature_stats.json"
+    write_feature_stats_to_json(feature_stats_path, importance, scores)
+    print(f"Feature statistics written to {feature_stats_path}")
+
+    print("Feature Importance:\n", json.dumps(importance, indent=4))
+    print("Feature Scores from Univariate Selection:\n", json.dumps(scores, indent=4))
 
 
 if __name__ == "__main__":
