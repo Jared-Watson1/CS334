@@ -23,7 +23,7 @@ def load_data(filepath):
 
 
 def load_best_params(model_name):
-    with open(f"{model_name}_best_params.json", "r") as f:
+    with open(f"data/{model_name}_params.json", "r") as f:
         best_params = json.load(f)
     return best_params["best_params"]
 
@@ -37,6 +37,9 @@ def preprocess_data(X):
 
 
 def train_model(X_train, y_train, model_type, best_params):
+    if model_type == "knn" and "k" in best_params:
+        best_params["n_neighbors"] = best_params.pop("k")
+
     if model_type == "decision_tree":
         model = DecisionTreeClassifier(**best_params)
     elif model_type == "knn":
@@ -91,11 +94,25 @@ def plot_roc_curves(models, X_test, y_test, classes):
     plt.show()
 
 
+def evaluate_model(model, X_test, y_test, name):
+    y_pred = model.predict(X_test)
+    f1 = f1_score(y_test, y_pred, average="weighted")
+    roc_auc = roc_auc_score(
+        y_test,
+        label_binarize(y_test, classes=np.unique(y_test)),
+        multi_class="ovr",
+        average="macro",
+    )
+    return {"Model": name, "F1 Score (Weighted)": f1, "ROC AUC Score": roc_auc}
+
+
 def main():
+    print("Starting model evaluation...")
     training_path = "data/training.csv"
     testing_path = "data/testing.csv"
 
     # Load and prepare data
+    print("Loading and preparing data...")
     train_data = load_data(training_path)
     test_data = load_data(testing_path)
     X_train, y_train = train_data.drop("loan_status", axis=1), train_data["loan_status"]
@@ -103,12 +120,22 @@ def main():
     X_train = preprocess_data(X_train)
     X_test = preprocess_data(X_test)
 
+    performance_results = []
     models = {}
     for model_name in ["decision_tree", "knn", "logistic_regression"]:
+        print(f"Testing model: {model_name}")
         best_params = load_best_params(model_name)
         model = train_model(X_train, y_train, model_name, best_params)
         models[model_name] = model
+        # Evaluate and collect performance
+        model_results = evaluate_model(model, X_test, y_test, model_name)
+        performance_results.append(model_results)
 
+    # Display performance results as a DataFrame
+    performance_df = pd.DataFrame(performance_results)
+    print(performance_df)
+
+    print("Done. Plotting ROC Curves...")
     plot_roc_curves(models, X_test, y_test, classes=np.unique(y_train))
 
 

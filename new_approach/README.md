@@ -60,3 +60,38 @@ Accuracy: 0.88
 Training KNN (k=9, metric=manhattan)...
 Accuracy: 0.88
 ```
+
+```bash
+python3 logistic_regression.py
+Starting logistic regression training...
+Preparing feature matrices and target vectors...
+Training Logistic Regression (C=0.01, penalty='l2')...
+Accuracy: 0.97
+Training Logistic Regression (C=0.1, penalty='l2')...
+Accuracy: 0.98
+Training Logistic Regression (C=1, penalty='l2')...
+Accuracy: 0.98
+Training Logistic Regression (C=10, penalty='l2')...
+/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py:458: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+Accuracy: 0.98
+Training Logistic Regression (C=100, penalty='l2')...
+/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py:458: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+Accuracy: 0.98
+Finished logistic regression training and evaluation. Results saved to logistic_regression.json.
+```
+
+- Logistic regression parameter tuning results stored in `logistic_regression.json`
