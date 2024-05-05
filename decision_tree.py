@@ -1,56 +1,64 @@
+import time
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, hamming_loss
-from sklearn.model_selection import train_test_split
-import joblib
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.impute import SimpleImputer
+import numpy as np
 
 
-def load_data():
-    train_data = pd.read_csv("data/training_set.csv")
-    test_data = pd.read_csv("data/testing_set.csv")
+def load_data(training_path, testing_path):
+    # Loads the training and testing data from CSV files.
+    train_data = pd.read_csv(training_path)
+    test_data = pd.read_csv(testing_path)
     return train_data, test_data
 
 
-def prepare_data(df):
-    # Filter out the loan status columns as the targets
-    target_columns = [col for col in df.columns if col.startswith("loan_status_")]
-    y = df[target_columns]
-    X = df.drop(target_columns, axis=1)
-    return X, y
-
-
 def train_decision_tree(X_train, y_train):
-    # Initialize the Decision Tree Classifier
-    model = DecisionTreeClassifier(random_state=42)
-    model.fit(X_train, y_train)
-    return model
+    # Initializes and trains the Decision Tree classifier.
+    dt_classifier = DecisionTreeClassifier(random_state=42)
+    dt_classifier.fit(X_train, y_train)
+    return dt_classifier
 
 
-def evaluate_model(model, X_test, y_test):
-    # Predicting the Test set results
-    y_pred = model.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    h_loss = hamming_loss(y_test, y_pred)
-    return acc, h_loss
+def evaluate_model(classifier, X_test, y_test):
+    # Makes predictions and evaluates the model.
+    y_pred = classifier.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    class_report = classification_report(y_test, y_pred)
+    return accuracy, class_report
 
 
 def main():
-    # Load the data
-    train_data, test_data = load_data()
+    start_time = time.time()
+    print("Starting decision tree training...")
+    training_path = "data/training.csv"
+    testing_path = "data/testing.csv"
 
-    # Prepare the data
-    X_train, y_train = prepare_data(train_data)
-    X_test, y_test = prepare_data(test_data)
+    train_data, test_data = load_data(training_path, testing_path)
 
-    # Train the model
-    model = train_decision_tree(X_train, y_train)
+    print("Preparing feature matrices and target vectors...")
 
-    # Evaluate the model
-    accuracy, h_loss = evaluate_model(model, X_test, y_test)
-    print(f"Accuracy: {accuracy}")
-    print(f"Hamming Loss: {h_loss}")
+    X_train = train_data.drop("loan_status", axis=1)
+    y_train = train_data["loan_status"]
+    X_test = test_data.drop("loan_status", axis=1)
+    y_test = test_data["loan_status"]
 
-    # joblib.dump(model, "multi_label_decision_tree_model.pkl")
+    imputer = SimpleImputer(missing_values=np.nan, strategy="mean")
+    X_train = imputer.fit_transform(X_train)
+    X_test = imputer.transform(X_test)
+
+    print(f"Finished preparing data: {time.time() - start_time}")
+
+    print("Starting training...")
+    classifier = train_decision_tree(X_train, y_train)
+    print(f"Finished training: {time.time() - start_time}")
+
+    print("Evaluating model...")
+    accuracy, class_report = evaluate_model(classifier, X_test, y_test)
+    print(f"Finished evaluating model: {time.time() - start_time}")
+
+    print(f"Accuracy of the Decision Tree model: {accuracy:.2f}")
+    print("Classification Report:\n", class_report)
 
 
 if __name__ == "__main__":

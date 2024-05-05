@@ -1,108 +1,91 @@
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder
 import time
+from sklearn.preprocessing import MinMaxScaler
 
 
-def preprocess_chunk(chunk, scaler, encoder, initial_features=None, fit=False):
-    """
-    This function preprocesses each chunk of data.
-    """
-    chunk = remove_irrelevant_features(chunk)
-    chunk = handle_missing_values(chunk)
-    chunk = feature_engineering(chunk)
-    chunk = encode_and_normalize(chunk, scaler, encoder, initial_features, fit=fit)
-    return chunk
+def load_and_sample_data(
+    file_path="../loan.csv", output_file_path="data/raw_loan_data.csv"
+):
+    """Load the dataset and take a random 50% sample because the dataset is too large"""
+    data = pd.read_csv(file_path)
+    sampled_data = data.sample(frac=0.5, random_state=1)
+    sampled_data.to_csv(output_file_path, index=False)
+    return output_file_path
 
 
-def remove_irrelevant_features(data):
-    """
-    Remove irrelevant features such as IDs and specific non-informative fields.
-    """
-    columns_to_drop = [
-        "id",
-        "member_id",
-        "url",
-        "desc",
-        "zip_code",
-        "emp_title",
-        "addr_state",
-        "settlement_date",
-        "settlement_status",
-    ]
-    data.drop(columns=columns_to_drop, inplace=True, errors="ignore")
-    return data
-
-
-def handle_missing_values(data):
-    """
-    Impute missing values based on column data type.
-    """
-    data = data.loc[:, data.isnull().mean() < 0.6].copy()
-    for column in data.columns:
-        imputer_strategy = (
-            "most_frequent" if data[column].dtype == "object" else "median"
-        )
-        imputer = SimpleImputer(strategy=imputer_strategy)
-        data[column] = imputer.fit_transform(data[[column]]).ravel()
-    return data
-
-
-def feature_engineering(data):
-    """
-    Apply any feature engineering steps.
-    """
-    if "term" in data.columns:
-        data["term"] = data["term"].str.extract("(\d+)").astype(float)
-    return data
-
-
-def encode_and_normalize(data, scaler, encoder, initial_features, fit=False):
-    """
-    One-hot encode categorical variables and normalize numerical features.
-    """
-    # Separate categorical and numerical data
-    categorical_columns = data.select_dtypes(include=["object"]).columns
+def normalize_numerical_features(data):
+    """Normalize numerical features in the dataset."""
+    # Select columns that are int or float types for normalization
     numerical_columns = data.select_dtypes(include=["int64", "float64"]).columns
-
-    # Process categorical data
-    if fit:
-        data_encoded = encoder.fit_transform(data[categorical_columns])
-    else:
-        data_encoded = encoder.transform(data[categorical_columns])
-
-    # Convert to DataFrame and handle feature names
-    data_encoded = pd.DataFrame(
-        data_encoded.toarray(),
-        columns=encoder.get_feature_names_out(categorical_columns),
-    )
-    data = pd.concat([data.drop(categorical_columns, axis=1), data_encoded], axis=1)
-
-    # Normalize numerical features
-    if fit:
-        scaler.fit(data[numerical_columns])
-    data[numerical_columns] = scaler.transform(data[numerical_columns])
+    scaler = MinMaxScaler()
+    data[numerical_columns] = scaler.fit_transform(data[numerical_columns])
     return data
+
+
+def remove_columns_with_many_missing_values(data, threshold=0.5):
+    """Remove columns with more than a specified threshold of missing values."""
+    limit = len(data) * threshold
+    data = data.dropna(thresh=limit, axis=1)
+    return data
+
+
+def encode_categorical_variables(data, target_column="loan_status", mappings=None):
+    """Encode categorical variables including a specific mapping for the target column."""
+    # Normalize 'Late' and other variations
+    if target_column in data.columns:
+        data[target_column] = data[target_column].apply(
+            lambda x: "Late" if "Late" in str(x) else x
+        )
+        data[target_column] = data[target_column].replace(mappings)
+    # Remove rows with loan statuses not in the mappings
+    data = data[data[target_column].isin(mappings.values())]
+    for col in data.select_dtypes(include=["object"]).columns:
+        if col != target_column:
+            data[col], _ = pd.factorize(data[col])
+    return data
+
+
+def main():
+    """Main function to run all preprocessing steps."""
+    start_time = time.time()
+    print("Starting preprocessing")
+
+    # Load and sample half data from loan.csv
+    sampled_file_path = load_and_sample_data()
+    data = pd.read_csv(sampled_file_path)
+
+    print(
+        f"Sampled data from loan.csv: {time.time() - start_time}\nNormalizing numerical features"
+    )
+    # Normalize numerical features first
+    data = normalize_numerical_features(data)
+
+    print(
+        f"Numerical features normalized: {time.time() - start_time}\nRemoving columns with missing values."
+    )
+    # Remove columns with many missing values
+    data = remove_columns_with_many_missing_values(data)
+
+    print(
+        f"Removed columns with many missing values: {time.time() - start_time}\nEncoding categorical values"
+    )
+    # Encode categorical variables
+    loan_status_mappings = {
+        "Current": 0,
+        "Fully Paid": 1,
+        "Charged Off": 3,
+        "Late": 4,
+        "In Grace Period": 5,
+    }
+    data = encode_categorical_variables(data, "loan_status", loan_status_mappings)
+
+    # Save the final processed data
+    final_file_path = "data/processed_loan_data.csv"
+    data.to_csv(final_file_path, index=False)
+    print(f"Encoded categorical variables: {time.time() - start_time}")
+
+    print(f"Preprocessing completed. Processed data saved to: {final_file_path}")
 
 
 if __name__ == "__main__":
-    start_time = time.time()
-    file_path = "loan.csv"
-    chunksize = 10000
-
-    scaler = MinMaxScaler()
-    encoder = OneHotEncoder(handle_unknown="ignore")
-    first_chunk = True
-
-    reader = pd.read_csv(file_path, chunksize=chunksize, low_memory=False)
-    for chunk in reader:
-        processed_chunk = preprocess_chunk(chunk, scaler, encoder, fit=first_chunk)
-        mode = "w" if first_chunk else "a"
-        header = first_chunk
-        processed_chunk.to_csv(
-            "preprocessed_loan_data.csv", mode=mode, header=header, index=False
-        )
-        first_chunk = False  # Update first_chunk flag after first use
-
-    print(f"Finished preprocessing: {time.time() - start_time}s")
+    main()
