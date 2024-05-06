@@ -15,7 +15,7 @@ Jared Watson, Shiv Desai
 
 - Used MinMaxScaler for numerical values
 
-# Decision Tree w/ Demographic Features
+## Decision Tree w/ Demographic Features
 
 ```bash
 python3 decision_tree.py
