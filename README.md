@@ -39,6 +39,31 @@ Classification Report:
 weighted avg       0.98      0.98      0.98    282243
 ```
 
+# Decision Tree w/ Demographic Features Removed
+
+```bash
+Starting decision tree training...
+Preparing feature matrices and target vectors...
+Finished preparing data: 15.080891132354736
+Starting training...
+Finished training: 112.60323429107666
+Evaluating model...
+Finished evaluating model: 113.13399934768677
+Accuracy of the Decision Tree model: 0.98
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.98      0.98      0.98     91954
+           1       0.99      0.99      0.99    104171
+           3       0.97      0.98      0.98     26223
+           4       0.75      0.75      0.75      2546
+           5       0.16      0.18      0.17       901
+
+    accuracy                           0.98    225795
+   macro avg       0.77      0.78      0.77    225795
+weighted avg       0.98      0.98      0.98    225795
+```
+
 ```bash
 python3 knn.py
 Starting KNN classifier training...
@@ -59,6 +84,30 @@ Training KNN (k=7, metric=manhattan)...
 Accuracy: 0.88
 Training KNN (k=9, metric=manhattan)...
 Accuracy: 0.88
+```
+
+# KNN Classifer w/ Demographic Features Removed
+
+```bash
+python3 knn.py
+Starting KNN classifier training...
+Preparing feature matrices and target vectors...
+Training KNN (k=3, metric=euclidean)...
+Accuracy: 0.85
+Training KNN (k=5, metric=euclidean)...
+Accuracy: 0.86
+Training KNN (k=7, metric=euclidean)...
+Accuracy: 0.86
+Training KNN (k=9, metric=euclidean)...
+Accuracy: 0.86
+Training KNN (k=3, metric=manhattan)...
+Accuracy: 0.87
+Training KNN (k=5, metric=manhattan)...
+Accuracy: 0.87
+Training KNN (k=7, metric=manhattan)...
+Accuracy: 0.89
+Training KNN (k=9, metric=manhattan)...
+Accuracy: 0.89
 ```
 
 ```bash
@@ -95,3 +144,21 @@ Finished logistic regression training and evaluation. Results saved to logistic_
 ```
 
 - Logistic regression parameter tuning results stored in `logistic_regression.json`
+
+# Logisitic Regression w/ Demographic Features Removed
+
+```bash
+Starting logistic regression training...
+Preparing feature matrices and target vectors...
+Training Logistic Regression (C=0.01, penalty='l2')...
+Accuracy: 0.96
+Training Logistic Regression (C=0.1, penalty='l2')...
+Accuracy: 0.96
+Training Logistic Regression (C=1, penalty='l2')...
+Accuracy: 0.96
+Training Logistic Regression (C=10, penalty='l2')...
+Accuracy: 0.96
+Training Logistic Regression (C=100, penalty='l2')...
+Accuracy: 0.96
+Finished logistic regression training and evaluation. Results saved to logistic_regression.json.
+```

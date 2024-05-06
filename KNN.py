@@ -44,8 +44,10 @@ def train_and_evaluate_knn(X_train, y_train, X_test, y_test, k_values, metrics):
 
 def main():
     print("Starting KNN classifier training...")
-    training_path = "data/training.csv"
-    testing_path = "data/testing.csv"
+    # training_path = "data/training_cleaned.csv"
+    # testing_path = "data/testing_cleaned.csv"
+    training_path = "data/train_bias_cleaned.csv"
+    testing_path = "data/test_bias_cleaned.csv"
 
     train_data, test_data = load_data(training_path, testing_path)
 

@@ -31,8 +31,10 @@ def evaluate_model(classifier, X_test, y_test):
 def main():
     start_time = time.time()
     print("Starting decision tree training...")
-    training_path = "data/training.csv"
-    testing_path = "data/testing.csv"
+    # training_path = "data/training.csv"
+    # testing_path = "data/testing.csv"
+    training_path = "data/train_bias_cleaned.csv"
+    testing_path = "data/test_bias_cleaned.csv"
 
     train_data, test_data = load_data(training_path, testing_path)
 
