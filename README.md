@@ -41,7 +41,7 @@ Classification Report:
 weighted avg       0.98      0.98      0.98    282243
 ```
 
-# Decision Tree w/ Demographic Features Removed
+## Decision Tree w/ Demographic Features Removed
 
 ```bash
 python3 decision_tree.py
@@ -67,7 +67,7 @@ Classification Report:
 weighted avg       0.98      0.98      0.98    225795
 ```
 
-# KNN Classifer w/ Demographic Features
+## KNN Classifer w/ Demographic Features
 
 ```bash
 python3 knn.py
@@ -91,7 +91,7 @@ Training KNN (k=9, metric=manhattan)...
 Accuracy: 0.88
 ```
 
-# KNN Classifer w/ Demographic Features Removed
+## KNN Classifer w/ Demographic Features Removed
 
 ```bash
 python3 knn.py
@@ -115,7 +115,7 @@ Training KNN (k=9, metric=manhattan)...
 Accuracy: 0.89
 ```
 
-# Logisitic Regression w/ Demographic Features
+## Logisitic Regression w/ Demographic Features
 
 ```bash
 python3 logistic_regression.py
@@ -133,7 +133,7 @@ Training Logistic Regression (C=100, penalty='l2')...
 Accuracy: 0.98
 ```
 
-# Logisitic Regression w/ Demographic Features Removed
+## Logisitic Regression w/ Demographic Features Removed
 
 ```bash
 Starting logistic regression training...
