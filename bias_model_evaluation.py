@@ -7,6 +7,10 @@ from sklearn.metrics import (
     classification_report,
     f1_score,
     roc_auc_score,
+    accuracy_score,
+    precision_score,
+    recall_score,
+    confusion_matrix,
 )
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import label_binarize, StandardScaler
@@ -22,11 +26,6 @@ def load_data(filepath):
     return pd.read_csv(filepath)
 
 
-def load_best_params(model_name):
-    with open(f"data/{model_name}_params.json", "r") as f:
-        best_params = json.load(f)
-    return best_params["best_params"]
-
 
 def preprocess_data(X):
     imputer = SimpleImputer(missing_values=np.nan, strategy="mean")
@@ -34,6 +33,28 @@ def preprocess_data(X):
     X_imputed = imputer.fit_transform(X)
     X_scaled = scaler.fit_transform(X_imputed)
     return X_scaled
+
+
+def calculate_metrics(y_true, y_pred):
+    """Calculate evaluation metrics for binary or multiclass classification."""
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, average="weighted")
+    recall = recall_score(y_true, y_pred, average="weighted")
+    f1 = f1_score(y_true, y_pred, average="weighted")
+    confusion = confusion_matrix(y_true, y_pred)
+
+    # Specificity calculation
+    tn = np.diag(confusion).sum() - np.diag(confusion)
+    fp = confusion.sum(axis=0) - np.diag(confusion)
+    specificity = tn / (tn + fp)
+
+    return {
+        "Accuracy": accuracy,
+        "Precision (Weighted)": precision,
+        "Recall (Sensitivity, Weighted)": recall,
+        "Specificity": specificity.mean(),
+        "F1 Score (Weighted)": f1,
+    }
 
 
 def train_model(X_train, y_train, model_type):
@@ -86,21 +107,27 @@ def plot_roc_curves(models, X_test, y_test, classes):
     plt.ylim([0.0, 1.05])
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
-    plt.title("Receiver Operating Characteristic to multi-class")
+    plt.title("ROC Curve")
     plt.legend(loc="lower right")
     plt.show()
 
 
 def evaluate_model(model, X_test, y_test, name):
+    """Evaluate the model with additional metrics."""
     y_pred = model.predict(X_test)
-    f1 = f1_score(y_test, y_pred, average="weighted")
+    base_metrics = calculate_metrics(y_test, y_pred)
+
+    # Compute ROC AUC score for multi-class classification
     roc_auc = roc_auc_score(
         y_test,
         label_binarize(y_test, classes=np.unique(y_test)),
         multi_class="ovr",
         average="macro",
     )
-    return {"Model": name, "F1 Score (Weighted)": f1, "ROC AUC Score": roc_auc}
+
+    # Append ROC AUC score
+    base_metrics.update({"Model": name, "ROC AUC Score": roc_auc})
+    return base_metrics
 
 
 def main():
@@ -123,14 +150,15 @@ def main():
     models = {}
     for model_name in ["decision_tree", "knn", "logistic_regression"]:
         print(f"Testing model: {model_name}")
+        print(f"Model: {model_name}\n")
         model = train_model(X_train, y_train, model_name)
         models[model_name] = model
         # Evaluate and collect performance
         model_results = evaluate_model(model, X_test, y_test, model_name)
         performance_results.append(model_results)
 
-    # Display performance results as a DataFrame
     performance_df = pd.DataFrame(performance_results)
+    performance_df.to_csv("data/model_evaluation.csv")
     print(performance_df)
 
     print("Done. Plotting ROC Curves...")
@@ -139,3 +167,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
