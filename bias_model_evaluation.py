@@ -36,16 +36,13 @@ def preprocess_data(X):
     return X_scaled
 
 
-def train_model(X_train, y_train, model_type, best_params):
-    if model_type == "knn" and "k" in best_params:
-        best_params["n_neighbors"] = best_params.pop("k")
-
+def train_model(X_train, y_train, model_type):
     if model_type == "decision_tree":
-        model = DecisionTreeClassifier(**best_params)
+        model = DecisionTreeClassifier(random_state=42)
     elif model_type == "knn":
-        model = KNeighborsClassifier(**best_params)
+        model = KNeighborsClassifier(n_neighbors=7, metric="manhattan")
     elif model_type == "logistic_regression":
-        model = LogisticRegression(**best_params)
+        model = LogisticRegression(C=10, penalty="l2")
     model.fit(X_train, y_train)
     return model
 
@@ -126,8 +123,7 @@ def main():
     models = {}
     for model_name in ["decision_tree", "knn", "logistic_regression"]:
         print(f"Testing model: {model_name}")
-        best_params = load_best_params(model_name)
-        model = train_model(X_train, y_train, model_name, best_params)
+        model = train_model(X_train, y_train, model_name)
         models[model_name] = model
         # Evaluate and collect performance
         model_results = evaluate_model(model, X_test, y_test, model_name)

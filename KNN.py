@@ -63,8 +63,11 @@ def main():
 
     X_train_scaled, X_test_scaled = scale_features(X_train, X_test)
 
-    k_values = [3, 5, 7, 9]  # Example: Test these k values
-    metrics = ["euclidean", "manhattan"]
+    # k_values = [3, 5, 7, 9]  # Example: Test these k values
+    k_values = [7] # best
+    # metrics = ["euclidean", "manhattan"]
+    metrics = ["manhattan"] # best
+
     results = train_and_evaluate_knn(
         X_train_scaled, y_train, X_test_scaled, y_test, k_values, metrics
     )
