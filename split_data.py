@@ -22,14 +22,14 @@ def select_features(data, feature_importance, correlation_threshold=0.75):
         np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool)
     )
 
-    # Find index of feature columns with high correlation
+    # get index of feature columns with high correlation
     to_drop = [
         column
         for column in upper_tri.columns
         if any(upper_tri[column] > correlation_threshold)
     ]
 
-    # Select features based on importance and low correlation
+    # select features based on importance and low correlation
     selected_features = [
         feature for feature in feature_importance if feature not in to_drop
     ]
@@ -46,7 +46,6 @@ def split_and_save_data(data, target_column, test_size, training_file, testing_f
         X, y, test_size=test_size, random_state=42
     )
 
-    # Combine the features and target again for saving
     train_data = pd.concat([X_train, y_train], axis=1)
     test_data = pd.concat([X_test, y_test], axis=1)
 
