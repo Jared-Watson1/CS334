@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("data/testing.csv")
+df = pd.read_csv("data/testing_cleaned.csv")
 
 sampled_df = df.sample(n=1000)
 out_file = "data/testing_sample.csv"

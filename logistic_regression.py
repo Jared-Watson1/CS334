@@ -45,8 +45,10 @@ def train_and_evaluate_logistic_regression(X_train, y_train, X_test, y_test):
 
 def main():
     print("Starting logistic regression training...")
-    training_path = "data/training.csv"
-    testing_path = "data/testing.csv"
+    # training_path = "data/training.csv"
+    # testing_path = "data/testing.csv"
+    training_path = "data/train_bias_cleaned.csv"
+    testing_path = "data/test_bias_cleaned.csv"
 
     train_data, test_data = load_data(training_path, testing_path)
 
