@@ -7,21 +7,18 @@ import numpy as np
 
 
 def load_data(training_path, testing_path):
-    # Loads the training and testing data from CSV files.
     train_data = pd.read_csv(training_path)
     test_data = pd.read_csv(testing_path)
     return train_data, test_data
 
 
 def train_decision_tree(X_train, y_train):
-    # Initializes and trains the Decision Tree classifier.
     dt_classifier = DecisionTreeClassifier(random_state=42)
     dt_classifier.fit(X_train, y_train)
     return dt_classifier
 
 
 def evaluate_model(classifier, X_test, y_test):
-    # Makes predictions and evaluates the model.
     y_pred = classifier.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     class_report = classification_report(y_test, y_pred)

@@ -81,17 +81,12 @@ def plot_roc_curves(models, X_test, y_test, classes):
     y_test_bin = label_binarize(y_test, classes=classes)
     n_classes = y_test_bin.shape[1]
 
-    # Plot linewidth
     lw = 2
-
-    # Compute ROC curve and ROC area for each class
     plt.figure()
 
     for name, model in models.items():
         classifier = OneVsRestClassifier(model)
         y_score = classifier.fit(X_test, y_test_bin).predict_proba(X_test)
-
-        # Compute ROC curve and ROC area for each class
         fpr = dict()
         tpr = dict()
         roc_auc = dict()
@@ -99,7 +94,6 @@ def plot_roc_curves(models, X_test, y_test, classes):
             fpr[i], tpr[i], _ = roc_curve(y_test_bin[:, i], y_score[:, i])
             roc_auc[i] = auc(fpr[i], tpr[i])
 
-        # Compute micro-average ROC curve and ROC area
         fpr["micro"], tpr["micro"], _ = roc_curve(y_test_bin.ravel(), y_score.ravel())
         roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
 
@@ -124,8 +118,6 @@ def evaluate_model(model, X_test, y_test, name):
     """Evaluate the model with additional metrics."""
     y_pred = model.predict(X_test)
     base_metrics = calculate_metrics(y_test, y_pred)
-
-    # Compute ROC AUC score for multi-class classification
     roc_auc = roc_auc_score(
         y_test,
         label_binarize(y_test, classes=np.unique(y_test)),
@@ -133,7 +125,6 @@ def evaluate_model(model, X_test, y_test, name):
         average="macro",
     )
 
-    # Append ROC AUC score
     base_metrics.update({"Model": name, "ROC AUC Score": roc_auc})
     return base_metrics
 
@@ -145,7 +136,6 @@ def main():
     training_path = "data/train_bias_cleaned.csv"
     testing_path = "data/test_bias_cleaned.csv"
 
-    # Load and prepare data
     print("Loading and preparing data...")
     train_data = load_data(training_path)
     test_data = load_data(testing_path)
@@ -162,7 +152,6 @@ def main():
         print(f"Model: {model_name}\nBest params: {best_params}")
         model = train_model(X_train, y_train, model_name, best_params)
         models[model_name] = model
-        # Evaluate and collect performance
         model_results = evaluate_model(model, X_test, y_test, model_name)
         performance_results.append(model_results)
 

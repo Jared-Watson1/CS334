@@ -56,24 +56,19 @@ def main():
     start_time = time.time()
     print("Starting preprocessing")
 
-    # Load and sample data
     data = load_and_sample_data()
 
     print(
         f"Sampled data from loan.csv: {time.time() - start_time}\nRemoving columns with missing values."
     )
-    # Remove columns with many missing values
     data = remove_columns_with_many_missing_values(data)
 
-    # Split the data into training and test sets
     train_data, test_data = train_test_split(data, test_size=0.2, random_state=42, stratify=data['loan_status'])
 
     print(f"Data split into train and test sets: {time.time() - start_time}\nNormalizing numerical features")
-    # Normalize numerical features
     train_data, test_data = normalize_numerical_features(train_data, test_data)
 
     print(f"Numerical features normalized: {time.time() - start_time}\nEncoding categorical values")
-    # Encode categorical variables
     loan_status_mappings = {
         "Current": 0,
         "Fully Paid": 1,
@@ -83,7 +78,6 @@ def main():
     }
     train_data, test_data = encode_categorical_variables(train_data, test_data, "loan_status", loan_status_mappings)
 
-    # Save the final processed data
     train_file_path = "data/processed_train_data.csv"
     test_file_path = "data/processed_test_data.csv"
     train_data.to_csv(train_file_path, index=False)

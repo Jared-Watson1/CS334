@@ -35,7 +35,7 @@ def train_and_evaluate_logistic_regression(X_train, y_train, X_test, y_test):
         report = classification_report(
             y_test, y_pred, zero_division=0, output_dict=True
         )
-        results[str((C, "l2"))] = {  # Convert tuple to string
+        results[str((C, "l2"))] = {
             "accuracy": accuracy,
             "classification_report": report,
         }
